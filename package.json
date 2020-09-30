@@ -9,7 +9,8 @@
     "build-process": "npx tsc imageProcessor.ts --outDir ./dist/imageProcessor",
     "dev:worker": "ts-node imageTask",
     "dev": "npm-run-all --parallel dev:*",
-    "migrate": "knex migrate:latest"
+    "migrate": "knex migrate:latest",
+    "heroku-postbuild": "npx tsc"
   },
   "author": "",
   "license": "ISC",
