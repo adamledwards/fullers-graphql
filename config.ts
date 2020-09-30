@@ -67,6 +67,7 @@ const { error, value } = schema.validate({
     secretAccessKey: S3_SECRET_ACCESS_KEY,
     region: S3_REGION,
   },
+  s3Bucket: S3_BUCKET
 });
 
 if (error) {
