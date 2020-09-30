@@ -15,10 +15,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/jsonwebtoken": "^8.5.0",
-    "@types/lodash.merge": "^4.6.6",
-    "@types/redis": "^2.8.27",
-    "@types/throng": "^4.0.2",
     "apollo-server": "^2.16.1",
     "auth0": "^2.29.0",
     "aws-sdk": "^2.743.0",
@@ -38,8 +34,7 @@
     "pg": "^8.3.3",
     "redis": "^3.0.2",
     "sharp": "^0.26.0",
-    "throng": "^4.0.0",
-    "typescript": "^4.0.2"
+    "throng": "^4.0.0"
   },
   "devDependencies": {
     "@types/auth0": "^2.20.8",
@@ -47,6 +42,11 @@
     "@types/md5": "^2.2.0",
     "@types/sharp": "^0.25.1",
     "npm-run-all": "^4.1.5",
-    "ts-node": "^9.0.0"
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/lodash.merge": "^4.6.6",
+    "@types/redis": "^2.8.27",
+    "@types/throng": "^4.0.2"
   }
 }
