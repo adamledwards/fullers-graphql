@@ -1,0 +1,5 @@
+.localstack
+.vscode
+.env
+node_modules
+
