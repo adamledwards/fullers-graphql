@@ -6,6 +6,7 @@ import { gql } from "apollo-server";
 import { JobArgs } from "../imageTask";
 import * as path from "path";
 import s3 from "../aws/s3/client";
+import config from '../config'
 
 import { IResolvers } from "graphql-tools";
 
@@ -82,7 +83,7 @@ async function addPropertyImage(
   }: { propertyImage: PropertyImage[]; files: Promise<FileUpload>[] },
   { knex }: { knex: Knex }
 ) {
-  const imageQueue = new Bull<JobArgs>("imageProcessor");
+  const imageQueue = new Bull<JobArgs>("imageProcessor", config.redisUrl);
 
   const uploads = files.map((filePromise, i) => {
     return new Promise(async (resolve, reject) => {
