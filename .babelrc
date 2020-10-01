@@ -1,0 +1,14 @@
+{
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-typescript"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties",
+      "graphql-tag",
+      "@babel/plugin-transform-runtime"
+    ],
+    "ignore": [
+        "./node_modules"
+      ]
+}

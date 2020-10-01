@@ -26,6 +26,13 @@ import { promisify } from "util";
 import Auth0 from "auth0";
 
 import config from "./config";
+const { PerformanceObserver, performance } = require('perf_hooks');
+
+const obs = new PerformanceObserver((items: any) => {
+  console.log(items.getEntries()[0].duration);
+  performance.clearMarks();
+});
+obs.observe({ entryTypes: ['measure'] });
 
 const redis = redisClient.createClient(config.redisUrl);
 const getAsync = promisify(redis.get).bind(redis);
@@ -460,5 +467,6 @@ const server = new ApolloServer({
 });
 
 server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+  performance.measure('start')
   console.log(`🚀  Server ready at ${url}`);
 });
