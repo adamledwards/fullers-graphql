@@ -176,7 +176,7 @@ const typeDefs = gql`
       isLetting: Boolean
       propertyType: PropertyType
       propertyStatus: PropertyStatus
-    ): [Property!] @deprecated(reason: "Use \`propertiesNext\`.")
+    ): [Property!] @deprecated(reason: "Use propertiesNext.")
     user:  User
   }
 
