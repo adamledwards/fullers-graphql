@@ -54,6 +54,7 @@ enum ProcessingStatus {
 
 type Context = {
   knex: Knex;
+  user: {}
 };
 
 const client = jwksClient({
@@ -153,14 +154,30 @@ const typeDefs = gql`
     image: [PropertyImage!]
   }
 
+  type User {
+    name: String!
+    email: String!
+    nickname: String!
+  }
+
+  type Properties {
+    count: Int!
+    data: [Property!]
+  }
+
   type Query {
     node(nodeId: ID!): Node
+    propertiesNext(
+      isLetting: Boolean
+      propertyType: PropertyType
+      propertyStatus: PropertyStatus
+    ): Properties
     properties(
       isLetting: Boolean
       propertyType: PropertyType
       propertyStatus: PropertyStatus
-    ): [Property!]
-    test: String
+    ): [Property!] @deprecated(reason: "Use \`propertiesNext\`.")
+    user:  User
   }
 
   enum PropertyType {
@@ -251,10 +268,20 @@ function resolveEnum<T>(enumValue: T): StandardEnum<T> {
 
 const resolvers: IResolvers<any, Context> = {
   Query: {
+    user: async (parent, args, {user}, info) => {
+      return user
+    },
     properties: async (parent, args, { knex }, info) => {
+      const whereArgs = Object.fromEntries(Object.entries(args).filter((entry) => typeof entry[1] !== 'undefined'))
       return knex<Property>("property").select([
         ...selections(info, { filter: ["image"] }),
-      ]);
+      ]).where(whereArgs);
+    },
+    propertiesNext: async (parent, args, context, info) => {
+      const whereArgs = Object.fromEntries(Object.entries(args).filter((entry) => typeof entry[1] !== 'undefined'))
+      return {
+        whereArgs
+      }
     },
     node: async (parent, { nodeId }, { knex }, info) => {
       const [type, id] = decodeNodeId(nodeId);
@@ -292,6 +319,7 @@ const resolvers: IResolvers<any, Context> = {
       const [type, id] = decodeNodeId(args.id);
       const { keyFeatures, ...property } = args.property;
       const result = ((await knex<Property, Property>("property")
+        //@ts-ignore
         .returning([...selections(info)])
         .update({
           ...property,
@@ -303,6 +331,7 @@ const resolvers: IResolvers<any, Context> = {
     addProperty: async (parent, args, { knex }, info) => {
       const { keyFeatures, ...property } = args.property;
       return knex<Property>("property")
+        //@ts-ignore
         .returning([...selections(info)])
         .insert({
           ...property,
@@ -392,6 +421,19 @@ const resolvers: IResolvers<any, Context> = {
       return data;
     },
   },
+  Properties: {
+    async count(parent, args, { knex }, info) {
+      const query = await knex<Property>("property").where(parent.whereArgs).count();
+      return query[0].count
+    },
+    async data(parent, args, { knex }, info) {
+      const query = await knex<Property>("property").select([
+        ...selections(info, { filter: ["image"] }),
+      ]).where(parent.whereArgs);
+      return query
+    }
+  },
+ 
 };
 
 const options: VerifyOptions = {

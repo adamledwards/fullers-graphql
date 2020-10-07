@@ -64,7 +64,7 @@ async function updatePropertyImage(
   }
   const [type, id] = decodeNodeId(propertyImageId);
   const selects = selections(info);
-
+  //@ts-ignore
   const imageQuery = knex<PropertyImage>("property_image")[method]([
     ...selects,
   ]);
