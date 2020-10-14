@@ -118,6 +118,7 @@ type Property = {
   propertyStatus: PropertyStatus;
   ownership: Ownership;
   bedroom: number;
+  bathroom: number;
   reception: number;
   description: string;
   keyFeatures: [string];
@@ -149,6 +150,7 @@ const typeDefs = gql`
     ownership: Ownership
     bedroom: Int
     reception: Int
+    bathroom: Int
     description: String!
     keyFeatures: [String!]
     image: [PropertyImage!]
@@ -211,6 +213,7 @@ const typeDefs = gql`
     propertyStatus: PropertyStatus
     ownership: Ownership
     bedroom: Int
+    bathroom: Int
     reception: Int
     description: String!
     keyFeatures: [String!]
