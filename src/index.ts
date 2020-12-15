@@ -104,7 +104,12 @@ enum Ownership {
   FREEHOLD,
   LEASEHOLD,
 }
-
+enum OrderBy {
+  PRICE__DESC,
+  PRICE__ASC,
+  CREATED_AT__ASC,
+  CREATED_AT__DESC,
+}
 type Property = {
   id: string;
   addressLine1: string;
@@ -164,7 +169,7 @@ const typeDefs = gql`
 
   type Properties {
     count: Int!
-    data: [Property!]
+    data(orderBy: OrderBy): [Property!]
   }
 
   type Query {
@@ -172,7 +177,6 @@ const typeDefs = gql`
     propertiesNext(
       isLetting: Boolean
       propertyType: PropertyType
-      propertyStatus: PropertyStatus
     ): Properties
     properties(
       isLetting: Boolean
@@ -200,6 +204,12 @@ const typeDefs = gql`
     FREEHOLD
     LEASEHOLD
   }
+  enum OrderBy {
+  PRICE__DESC,
+  PRICE__ASC,
+  CREATED_AT__ASC,
+  CREATED_AT__DESC,
+}
 
   input PropertyInput {
     addressLine1: String!
@@ -381,6 +391,12 @@ const resolvers: IResolvers<any, Context> = {
     OFFER_ACCEPTED: 2,
     SOLD: 3,
   },
+  OrderBy: {
+    PRICE__DESC: 'price__desc',
+    PRICE__ASC: 'price__asc',
+    CREATED_AT__ASC: 'created_at__asc',
+    CREATED_AT__DESC: 'created_at__desc',
+  },
   ProcessingStatus: resolveEnum<typeof ProcessingStatus>(ProcessingStatus),
   File: {
     __resolveType(obj: { type: string }) {
@@ -430,10 +446,16 @@ const resolvers: IResolvers<any, Context> = {
       return query[0].count
     },
     async data(parent, args, { knex }, info) {
-      const query = await knex<Property>("property").select([
+
+      const query = knex<Property>("property").select([
         ...selections(info, { filter: ["image"] }),
       ]).where(parent.whereArgs);
-      return query
+      if(args.orderBy){
+
+        query.orderBy.apply(query, (args.orderBy as string).split('__') as any)
+      }
+      const result = await query
+      return result
     }
   },
  
@@ -473,7 +495,7 @@ const server = new ApolloServer({
   typeDefs: [typeDefs, ...propertyImageTypeDef],
   resolvers: resolversFunc,
   engine: {
-    debugPrintReports: true,
+    debugPrintReports: false,
   },
   tracing: true,
   context: ({ req }) => {
