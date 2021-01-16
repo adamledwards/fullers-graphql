@@ -141,6 +141,16 @@ const typeDefs = gql`
     id: ID!
   }
 
+  type Geolocation {
+    lat: Float!,
+    long: Float!
+  }
+
+  input GeolocationInput {
+    lat: Float!,
+    long: Float!
+  }
+
   type Property implements Node {
     id: ID!
     addressLine1: String!
@@ -159,8 +169,10 @@ const typeDefs = gql`
     description: String!
     keyFeatures: [String!]
     image: [PropertyImage!]
+    geolocation: Geolocation
   }
 
+ 
   type User {
     name: String!
     email: String!
@@ -227,10 +239,11 @@ const typeDefs = gql`
     reception: Int
     description: String!
     keyFeatures: [String!]
+    geolocation: GeolocationInput
   }
 
   interface File {
-    id: ID!
+    id: ID
     filepath: String
     mimetype: String!
     encoding: String!
@@ -330,25 +343,27 @@ const resolvers: IResolvers<any, Context> = {
   Mutation: {
     updateProperty: async (parent, args, { knex }, info) => {
       const [type, id] = decodeNodeId(args.id);
-      const { keyFeatures, ...property } = args.property;
+      const { keyFeatures, geolocation, ...property } = args.property;
       const result = ((await knex<Property, Property>("property")
         //@ts-ignore
         .returning([...selections(info)])
         .update({
           ...property,
           keyFeatures: JSON.stringify(keyFeatures || []),
+          ...(geolocation && {geolocation: knex.raw(`point(${geolocation.lat}, ${geolocation.long})`)}),
         })
         .where("id", id)) as unknown) as Property[];
       return result[0];
     },
     addProperty: async (parent, args, { knex }, info) => {
-      const { keyFeatures, ...property } = args.property;
+      const { keyFeatures, geolocation, ...property } = args.property;
       return knex<Property>("property")
         //@ts-ignore
         .returning([...selections(info)])
         .insert({
           ...property,
           keyFeatures: JSON.stringify(keyFeatures || []),
+          ...(geolocation && {geolocation: knex.raw(`point(${geolocation.lat}, ${geolocation.long})`)}),
         })
         .then((properties) => properties[0]);
     },
@@ -407,6 +422,14 @@ const resolvers: IResolvers<any, Context> = {
     __resolveType(obj: any, context: any, info: any) {
       return obj.__GLOBAL_ID_TYPE;
     },
+  },
+  Geolocation: {
+    lat(obj) {
+      return obj.x
+    },
+    long(obj) {
+      return obj.y
+    }
   },
   PropertyImage: {
     id(obj) {
@@ -522,7 +545,7 @@ const server = new ApolloServer({
           }
         });
       } else {
-        return resolve();
+        return resolve(void 0);
       }
     });
 
