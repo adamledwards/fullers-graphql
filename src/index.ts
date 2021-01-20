@@ -168,7 +168,7 @@ const typeDefs = gql`
     bathroom: Int
     description: String!
     keyFeatures: [String!]
-    image: [PropertyImage!]
+    image(isFloorPlans: Boolean = false): [PropertyImage!]
     geolocation: Geolocation
   }
 
@@ -440,7 +440,8 @@ const resolvers: IResolvers<any, Context> = {
     id(obj) {
       return Buffer.from(`Property:${obj.id}`).toString("base64");
     },
-    async image(parent: Property, args, { knex }, info) {
+    async image(parent: Property, args: {isFloorPlans: boolean}, { knex }, info) {
+
       const selects = selections(info);
       const hasFormat = selects.delete("format");
       const query = knex<PropertyImage, PropertyImage>(
@@ -455,6 +456,7 @@ const resolvers: IResolvers<any, Context> = {
       }
       const data = await query
         .where("propertyId", parent.id)
+        .where("isFloorPlans", args.isFloorPlans)
         .orderBy([
           { column: "order" },
           { column: "updated_at", order: "desc" },

@@ -28,6 +28,7 @@ export const typeDef = gql`
     order: Int!
     updated_at: String
     created_at: String
+    isFloorPlans: Boolean
   }
 
   input PropertyImageInput {
@@ -40,6 +41,7 @@ export const typeDef = gql`
     addPropertyImage(
       files: [Upload!]!
       propertyImage: [PropertyImageInput!]!
+      isFloorPlans: Boolean = false
     ): [PropertyImage!]!
   }
 `;
@@ -68,6 +70,7 @@ export type PropertyImage = {
     mimetype: string;
     path: string;
   }[];
+  isFloorPlans?: boolean
 };
 
 function decodeNodeId(nodeID: string) {
@@ -80,7 +83,8 @@ async function addPropertyImage(
   {
     propertyImage,
     files,
-  }: { propertyImage: PropertyImage[]; files: Promise<FileUpload>[] },
+    isFloorPlans = false
+  }: { propertyImage: PropertyImage[]; files: Promise<FileUpload>[], isFloorPlans: boolean },
   { knex }: { knex: Knex }
 ) {
   const imageQueue = new Bull<JobArgs>("imageProcessor", config.redisUrl);
@@ -116,6 +120,7 @@ async function addPropertyImage(
               processingStatus: 0,
               propertyId: parseInt(propertyId),
               description: propertyImage[i].description,
+              isFloorPlans
             });
           imageQueue.add({
             propertyImage: {
@@ -134,6 +139,7 @@ async function addPropertyImage(
               <string>(<unknown>propertyImage[i].propertyId)
             ),
             description: propertyImage[i].description,
+            isFloorPlans
           });
         }
       );
