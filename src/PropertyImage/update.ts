@@ -4,7 +4,6 @@ import selections from "../utils/selection";
 
 import { IResolvers } from "graphql-tools";
 import { GraphQLResolveInfo } from "graphql";
-import { kernel } from "sharp";
 
 export const typeDef = gql`
   extend type Mutation {
@@ -41,7 +40,7 @@ export type PropertyImage = {
     mimetype: string;
     path: string;
   }[];
-  isFloorPlans?: boolean
+  isFloorPlans?: boolean;
 };
 
 function decodeNodeId(nodeID: string) {

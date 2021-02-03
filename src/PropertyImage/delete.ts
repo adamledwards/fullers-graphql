@@ -39,7 +39,7 @@ export type PropertyImage = {
     mimetype: string;
     path: string;
   }[];
-  isFloorPlans?: boolean
+  isFloorPlans?: boolean;
 };
 
 function decodeNodeId(nodeID: string) {

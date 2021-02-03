@@ -26,7 +26,6 @@ export async function up(knex: Knex): Promise<void> {
 
     table.text("description").notNullable();
     table.json("keyFeatures").defaultTo([]);
-    
   });
 }
 

@@ -15,6 +15,11 @@ import {
   resolver as propertyImageResolver,
 } from "./PropertyImage";
 import { deletePropertyImageFromS3 } from "./PropertyImage/delete";
+
+import {
+  typeDef as messageTypeDef,
+  resolver as messageResolver,
+} from "./Message";
 import jwt, {
   VerifyOptions,
   JwtHeader,
@@ -26,13 +31,13 @@ import { promisify } from "util";
 import Auth0 from "auth0";
 
 import config from "./config";
-const { PerformanceObserver, performance } = require('perf_hooks');
+const { PerformanceObserver, performance } = require("perf_hooks");
 
 const obs = new PerformanceObserver((items: any) => {
   console.log(items.getEntries()[0].duration);
   performance.clearMarks();
 });
-obs.observe({ entryTypes: ['measure'] });
+obs.observe({ entryTypes: ["measure"] });
 
 const redis = redisClient.createClient(config.redisUrl);
 const getAsync = promisify(redis.get).bind(redis);
@@ -54,7 +59,7 @@ enum ProcessingStatus {
 
 type Context = {
   knex: Knex;
-  user: {}
+  user: {};
 };
 
 const client = jwksClient({
@@ -142,12 +147,12 @@ const typeDefs = gql`
   }
 
   type Geolocation {
-    lat: Float!,
+    lat: Float!
     long: Float!
   }
 
   input GeolocationInput {
-    lat: Float!,
+    lat: Float!
     long: Float!
   }
 
@@ -172,7 +177,6 @@ const typeDefs = gql`
     geolocation: Geolocation
   }
 
- 
   type User {
     name: String!
     email: String!
@@ -186,16 +190,13 @@ const typeDefs = gql`
 
   type Query {
     node(nodeId: ID!): Node
-    propertiesNext(
-      isLetting: Boolean
-      propertyType: PropertyType
-    ): Properties
+    propertiesNext(isLetting: Boolean, propertyType: PropertyType): Properties
     properties(
       isLetting: Boolean
       propertyType: PropertyType
       propertyStatus: PropertyStatus
     ): [Property!] @deprecated(reason: "Use propertiesNext.")
-    user:  User
+    user: User
   }
 
   enum PropertyType {
@@ -217,11 +218,11 @@ const typeDefs = gql`
     LEASEHOLD
   }
   enum OrderBy {
-  PRICE__DESC,
-  PRICE__ASC,
-  CREATED_AT__ASC,
-  CREATED_AT__DESC,
-}
+    PRICE__DESC
+    PRICE__ASC
+    CREATED_AT__ASC
+    CREATED_AT__DESC
+  }
 
   input PropertyInput {
     addressLine1: String!
@@ -294,20 +295,24 @@ function resolveEnum<T>(enumValue: T): StandardEnum<T> {
 
 const resolvers: IResolvers<any, Context> = {
   Query: {
-    user: async (parent, args, {user}, info) => {
-      return user
+    user: async (parent, args, { user }, info) => {
+      return user;
     },
     properties: async (parent, args, { knex }, info) => {
-      const whereArgs = Object.fromEntries(Object.entries(args).filter((entry) => typeof entry[1] !== 'undefined'))
-      return knex<Property>("property").select([
-        ...selections(info, { filter: ["image"] }),
-      ]).where(whereArgs);
+      const whereArgs = Object.fromEntries(
+        Object.entries(args).filter((entry) => typeof entry[1] !== "undefined")
+      );
+      return knex<Property>("property")
+        .select([...selections(info, { filter: ["image"] })])
+        .where(whereArgs);
     },
     propertiesNext: async (parent, args, context, info) => {
-      const whereArgs = Object.fromEntries(Object.entries(args).filter((entry) => typeof entry[1] !== 'undefined'))
+      const whereArgs = Object.fromEntries(
+        Object.entries(args).filter((entry) => typeof entry[1] !== "undefined")
+      );
       return {
-        whereArgs
-      }
+        whereArgs,
+      };
     },
     node: async (parent, { nodeId }, { knex }, info) => {
       const [type, id] = decodeNodeId(nodeId);
@@ -350,22 +355,32 @@ const resolvers: IResolvers<any, Context> = {
         .update({
           ...property,
           keyFeatures: JSON.stringify(keyFeatures || []),
-          ...(geolocation && {geolocation: knex.raw(`point(${geolocation.lat}, ${geolocation.long})`)}),
+          ...(geolocation && {
+            geolocation: knex.raw(
+              `point(${geolocation.lat}, ${geolocation.long})`
+            ),
+          }),
         })
         .where("id", id)) as unknown) as Property[];
       return result[0];
     },
     addProperty: async (parent, args, { knex }, info) => {
       const { keyFeatures, geolocation, ...property } = args.property;
-      return knex<Property>("property")
-        //@ts-ignore
-        .returning([...selections(info)])
-        .insert({
-          ...property,
-          keyFeatures: JSON.stringify(keyFeatures || []),
-          ...(geolocation && {geolocation: knex.raw(`point(${geolocation.lat}, ${geolocation.long})`)}),
-        })
-        .then((properties) => properties[0]);
+      return (
+        knex<Property>("property")
+          //@ts-ignore
+          .returning([...selections(info)])
+          .insert({
+            ...property,
+            keyFeatures: JSON.stringify(keyFeatures || []),
+            ...(geolocation && {
+              geolocation: knex.raw(
+                `point(${geolocation.lat}, ${geolocation.long})`
+              ),
+            }),
+          })
+          .then((properties) => properties[0])
+      );
     },
     deleteProperty: async (parent, args, { knex }, info) => {
       const [type, id] = decodeNodeId(args.id);
@@ -407,10 +422,10 @@ const resolvers: IResolvers<any, Context> = {
     SOLD: 3,
   },
   OrderBy: {
-    PRICE__DESC: 'price__desc',
-    PRICE__ASC: 'price__asc',
-    CREATED_AT__ASC: 'created_at__asc',
-    CREATED_AT__DESC: 'created_at__desc',
+    PRICE__DESC: "price__desc",
+    PRICE__ASC: "price__asc",
+    CREATED_AT__ASC: "created_at__asc",
+    CREATED_AT__DESC: "created_at__desc",
   },
   ProcessingStatus: resolveEnum<typeof ProcessingStatus>(ProcessingStatus),
   File: {
@@ -425,11 +440,11 @@ const resolvers: IResolvers<any, Context> = {
   },
   Geolocation: {
     lat(obj) {
-      return obj.x
+      return obj.x;
     },
     long(obj) {
-      return obj.y
-    }
+      return obj.y;
+    },
   },
   PropertyImage: {
     id(obj) {
@@ -440,8 +455,12 @@ const resolvers: IResolvers<any, Context> = {
     id(obj) {
       return Buffer.from(`Property:${obj.id}`).toString("base64");
     },
-    async image(parent: Property, args: {isFloorPlans: boolean}, { knex }, info) {
-
+    async image(
+      parent: Property,
+      args: { isFloorPlans: boolean },
+      { knex },
+      info
+    ) {
       const selects = selections(info);
       const hasFormat = selects.delete("format");
       const query = knex<PropertyImage, PropertyImage>(
@@ -467,23 +486,22 @@ const resolvers: IResolvers<any, Context> = {
   },
   Properties: {
     async count(parent, args, { knex }, info) {
-      const query = await knex<Property>("property").where(parent.whereArgs).count();
-      return query[0].count
+      const query = await knex<Property>("property")
+        .where(parent.whereArgs)
+        .count();
+      return query[0].count;
     },
     async data(parent, args, { knex }, info) {
-
-      const query = knex<Property>("property").select([
-        ...selections(info, { filter: ["image"] }),
-      ]).where(parent.whereArgs);
-      if(args.orderBy){
-
-        query.orderBy.apply(query, (args.orderBy as string).split('__') as any)
+      const query = knex<Property>("property")
+        .select([...selections(info, { filter: ["image"] })])
+        .where(parent.whereArgs);
+      if (args.orderBy) {
+        query.orderBy.apply(query, (args.orderBy as string).split("__") as any);
       }
-      const result = await query
-      return result
-    }
+      const result = await query;
+      return result;
+    },
   },
- 
 };
 
 const options: VerifyOptions = {
@@ -507,17 +525,28 @@ function ProtectMutations(next: IFieldResolver<any, any, any>) {
   };
 }
 
-const resolversFunc = merge({}, resolvers, propertyImageResolver);
+const resolversFunc = merge(
+  {},
+  resolvers,
+  propertyImageResolver,
+  messageResolver
+);
 resolversFunc.Mutation = Object.entries(resolversFunc.Mutation).reduce(
   (acc, [key, value]) => {
-    acc[key] = ProtectMutations(value);
+
+    if(['addContactMessage', 'addValuationMessage', 'addViewingMessage', 'deleteMessage'].includes(key)) {
+      acc[key] = value
+    }  else  {
+      acc[key] = ProtectMutations(value);
+    }
+    
     return acc;
   },
   {} as IResolverObject<any, any>
 );
 
 const server = new ApolloServer({
-  typeDefs: [typeDefs, ...propertyImageTypeDef],
+  typeDefs: [typeDefs, ...propertyImageTypeDef, ...messageTypeDef],
   resolvers: resolversFunc,
   engine: {
     debugPrintReports: false,
@@ -559,6 +588,6 @@ const server = new ApolloServer({
 });
 
 server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
-  performance.measure('start')
+  performance.measure("start");
   console.log(`🚀  Server ready at ${url}`);
 });

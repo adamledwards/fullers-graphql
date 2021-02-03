@@ -6,7 +6,7 @@ import { gql } from "apollo-server";
 import { JobArgs } from "../imageTask";
 import * as path from "path";
 import s3 from "../aws/s3/client";
-import config from '../config'
+import config from "../config";
 
 import { IResolvers } from "graphql-tools";
 
@@ -70,7 +70,7 @@ export type PropertyImage = {
     mimetype: string;
     path: string;
   }[];
-  isFloorPlans?: boolean
+  isFloorPlans?: boolean;
 };
 
 function decodeNodeId(nodeID: string) {
@@ -83,8 +83,12 @@ async function addPropertyImage(
   {
     propertyImage,
     files,
-    isFloorPlans = false
-  }: { propertyImage: PropertyImage[]; files: Promise<FileUpload>[], isFloorPlans: boolean },
+    isFloorPlans = false,
+  }: {
+    propertyImage: PropertyImage[];
+    files: Promise<FileUpload>[];
+    isFloorPlans: boolean;
+  },
   { knex }: { knex: Knex }
 ) {
   const imageQueue = new Bull<JobArgs>("imageProcessor", config.redisUrl);
@@ -120,7 +124,7 @@ async function addPropertyImage(
               processingStatus: 0,
               propertyId: parseInt(propertyId),
               description: propertyImage[i].description,
-              isFloorPlans
+              isFloorPlans,
             });
           imageQueue.add({
             propertyImage: {
@@ -139,7 +143,7 @@ async function addPropertyImage(
               <string>(<unknown>propertyImage[i].propertyId)
             ),
             description: propertyImage[i].description,
-            isFloorPlans
+            isFloorPlans,
           });
         }
       );

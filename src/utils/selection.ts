@@ -2,17 +2,15 @@ import {
   FieldNode,
   SelectionNode,
   GraphQLResolveInfo,
-  
   SelectionSetNode,
   FragmentSpreadNode,
   InlineFragmentNode,
 } from "graphql";
 
-
-type SelectionFields = Array<string | {[key: string]: SelectionFields}>
+type SelectionFields = Array<string | { [key: string]: SelectionFields }>;
 export default function selections(
   info: GraphQLResolveInfo,
-  options?: { filter: string[]; type?: string},
+  options?: { filter: string[]; type?: string },
   selectionNodeName?: string
 ) {
   let collectFields: SelectionFields = [];
@@ -20,15 +18,17 @@ export default function selections(
   const fieldNode = info.fieldNodes[0];
 
   if (fieldNode?.selectionSet) {
-    let selections: SelectionSetNode | void = fieldNode.selectionSet
-    if(selectionNodeName) {
-      const selectionSet = fieldNode.selectionSet.selections.find((field) => isFieldNode(field) && field.name.value === selectionNodeName) as FieldNode
-      selections = selectionSet?.selectionSet 
+    let selections: SelectionSetNode | void = fieldNode.selectionSet;
+    if (selectionNodeName) {
+      const selectionSet = fieldNode.selectionSet.selections.find(
+        (field) => isFieldNode(field) && field.name.value === selectionNodeName
+      ) as FieldNode;
+      selections = selectionSet?.selectionSet;
     }
-    if(!selections) {
-      return new Set()
+    if (!selections) {
+      return new Set();
     }
-    
+
     collectFields = [
       ...collectFields,
       ...extractFields(selections, info, options),
@@ -47,12 +47,10 @@ function extractFields(
 ) {
   return selectionSet.selections.reduce((fields, field) => {
     if (isFieldNode(field) && !options?.filter.includes(field.name.value)) {
-      if(field.selectionSet?.selections) {
+      if (field.selectionSet?.selections) {
         // extractRootFields()
       }
       fields.push(field.name.value);
-      
-      
     } else if (isFragmentSpread(field)) {
       fields = [
         ...fields,
@@ -68,11 +66,9 @@ function extractFields(
     ) {
       fields = [...fields, ...extractFields(field.selectionSet, info, options)];
     }
-    
+
     return fields;
   }, [] as SelectionFields);
-
-
 }
 
 function isFieldNode(node: SelectionNode): node is FieldNode {
@@ -95,6 +91,3 @@ function isInlineFragment(node: SelectionNode): node is InlineFragmentNode {
   }
   return false;
 }
-
-
-

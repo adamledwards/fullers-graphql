@@ -1,6 +1,6 @@
-require('dotenv').config();
+require("dotenv").config();
 
 module.exports = {
-  client: 'postgresql',
-  connection: process.env.DATABASE_URL
+  client: "postgresql",
+  connection: process.env.DATABASE_URL,
 };
