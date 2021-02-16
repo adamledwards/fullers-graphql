@@ -31,6 +31,7 @@ import { promisify } from "util";
 import Auth0 from "auth0";
 
 import config from "./config";
+import { extractOutCode, stripHouseNumber } from "./utils";
 const { PerformanceObserver, performance } = require("perf_hooks");
 
 const obs = new PerformanceObserver((items: any) => {
@@ -175,6 +176,8 @@ const typeDefs = gql`
     keyFeatures: [String!]
     image(isFloorPlans: Boolean = false): [PropertyImage!]
     geolocation: Geolocation
+    created_at: String!
+    updated_at: String!
   }
 
   type User {
@@ -339,6 +342,13 @@ const resolvers: IResolvers<any, Context> = {
         }
         result = await query.where("id", id);
       }
+      if (['contact', 'viewing', 'valuation'].includes(type.toLowerCase())) {
+        result = await knex("message")
+          .select([
+            'propertyId', ...selections(info, { filter: ['property'], type }),
+          ])
+          .where("id", id);
+      }
       if (result) {
         return { ...result[0], __GLOBAL_ID_TYPE: type };
       }
@@ -455,6 +465,23 @@ const resolvers: IResolvers<any, Context> = {
     id(obj) {
       return Buffer.from(`Property:${obj.id}`).toString("base64");
     },
+    async addressLine1(obj, args, context) {
+    const user = await context.user
+    if(user) { 
+     return obj.addressLine1
+    }
+    return stripHouseNumber(obj.addressLine1)
+     
+    },
+    async postcode(obj, args, context) {
+     const user = await context.user
+      if(user) {
+       return obj.postcode
+      }
+      
+      return extractOutCode(obj.postcode)
+       
+      },
     async image(
       parent: Property,
       args: { isFloorPlans: boolean },
@@ -587,7 +614,8 @@ const server = new ApolloServer({
   },
 });
 
-server.listen({ port: process.env.PORT || 4000 }).then(({ url }) => {
+server.listen({ port: process.env.PORT || 4000,   cors: {
+  origin: '*'} }).then(({ url }) => {
   performance.measure("start");
   console.log(`🚀  Server ready at ${url}`);
 });

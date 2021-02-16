@@ -8,13 +8,14 @@ import { Context, MessageType, Message } from "./types";
 export const typeDef = gql`
 
   interface Message {
-    firstName: String
+    id: ID!
+    firstName: String!
     lastName: String!
     email: String
     message: String
     telephone: String
-    created_at: String
-    updated_at: String
+    created_at: String!
+    updated_at: String!
 
     read: Boolean
   }
@@ -31,8 +32,8 @@ export const typeDef = gql`
     email: String!
     message: String
     telephone: String
-    created_at: String
-    updated_at: String
+    created_at: String!
+    updated_at: String!
     read: Boolean
 
     subject: String
@@ -46,8 +47,8 @@ export const typeDef = gql`
     email: String
     message: String
     telephone: String
-    created_at: String
-    updated_at: String
+    created_at: String!
+    updated_at: String!
     read: Boolean
 
     addressLine1: String!
@@ -64,8 +65,8 @@ export const typeDef = gql`
     email: String
     message: String
     telephone: String
-    created_at: String
-    updated_at: String
+    created_at: String!
+    updated_at: String!
     read: Boolean
 
     subject: String
@@ -75,26 +76,26 @@ export const typeDef = gql`
   type Contacts {
     total: Int!
     unread: Int!
-    data: [Contact]
+    data: [Contact!]!
   }
   type Valuations {
     total: Int!
     unread: Int!
-    data: [Valuation]
+    data: [Valuation!]!
   }
   type Viewings {
     total: Int!
     unread: Int!
-    data: [Viewing]
+    data: [Viewing!]!
   }
   type Messages {
-    contacts: Contacts
-    valuations: Valuations
-    viewings: Viewing
+    contacts: Contacts!
+    valuations: Valuations!
+    viewings: Viewings!
   }
 
   extend type Query {
-    messages: Messages
+    messages: Messages!
   }
 `;
 
@@ -130,7 +131,7 @@ const messageGeneric = (type: string): IResolverObject => ({
     { knex },
     info
   ) {
-    const result  = await queryBuilder.select([...selections(info)]).orderBy(["created_at"]);
+    const result  = await queryBuilder.select(['propertyId', ...selections(info, {filter: ['property'] })]).orderBy("created_at", "desc");
     return result
   },
 });
@@ -150,15 +151,42 @@ export const resolver: IResolvers<any, Context> = {
     id(obj) {
         return Buffer.from(`Contact:${obj.id}`).toString("base64");
       },
+      created_at(obj) {
+        return new Date(obj.created_at).toISOString()
+      },
+      updated_at(obj) {
+        return new Date(obj.updated_at).toISOString()
+      },
   },
   Viewing: {
     id(obj) {
         return Buffer.from(`Viewing:${obj.id}`).toString("base64");
       },
+      created_at(obj) {
+        return new Date(obj.created_at).toISOString()
+      },
+      updated_at(obj) {
+        return new Date(obj.updated_at).toISOString()
+      },
+      async property({propertyId}, args, { knex }, info) {
+        
+        const result = await knex("property")
+          .select([
+            ...selections(info, { filter: ["image"], type: "Property" }),
+          ])
+          .where("id", propertyId);
+          return result[0]
+      }
   },
   Valuation: {
     id(obj) {
         return Buffer.from(`Valuation:${obj.id}`).toString("base64");
+      },
+      created_at(obj) {
+        return new Date(obj.created_at).toISOString()
+      },
+      updated_at(obj) {
+        return new Date(obj.updated_at).toISOString()
       },
   },
   Message: {

@@ -33,7 +33,9 @@ export const resolver: IResolvers<any, Context> = {
             selectionSet = new Set([...selectionSet, 'formType'])
             const query = await knex<Message>('message').update({
                 read: status.read,
-            })
+            }).
+                //@ts-ignore
+            where({ id })
             //@ts-ignore
             .returning([...selectionSet])
             return query[0]
