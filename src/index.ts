@@ -145,7 +145,7 @@ const knex = Knex(
     connection: {
       connectionString: config.databaseUrl,
       ssl: {
-        rejectUnauthorized: true
+        rejectUnauthorized: false
       }
     }
   }
