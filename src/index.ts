@@ -140,7 +140,16 @@ type PropertyImageInput = {
   description: string;
 };
 
-const knex = Knex(config.databaseUrl);
+const knex = Knex(
+  {
+    connection: {
+      connectionString: config.databaseUrl,
+      ssl: {
+        rejectUnauthorized: true
+      }
+    }
+  }
+  );
 
 const typeDefs = gql`
   interface Node {
