@@ -142,6 +142,7 @@ type PropertyImageInput = {
 
 const knex = Knex(
   {
+    client: 'postgresql',
     connection: {
       connectionString: config.databaseUrl,
       ssl: {
