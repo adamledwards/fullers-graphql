@@ -101,9 +101,12 @@ enum PropertyType {
 }
 
 enum PropertyStatus {
+  NA,
   FOR_SALE,
-  OFFER_ACCEPTED,
+  SALE_AGREED,
   SOLD,
+  LET,
+  LET_AGREED,
 }
 
 enum Ownership {
@@ -221,8 +224,10 @@ const typeDefs = gql`
   enum PropertyStatus {
     NA
     FOR_SALE
-    OFFER_ACCEPTED
+    SALE_AGREED
     SOLD
+    LET
+    LET_AGREED
   }
 
   enum Ownership {
@@ -438,8 +443,10 @@ const resolvers: IResolvers<any, Context> = {
   PropertyStatus: {
     NA: 0,
     FOR_SALE: 1,
-    OFFER_ACCEPTED: 2,
+    SALE_AGREED: 2,
     SOLD: 3,
+    LET: 4,
+    LET_AGREED: 4,
   },
   OrderBy: {
     PRICE__DESC: "price__desc",
