@@ -1,9 +1,10 @@
  {
   "schemaVersion": 2,
   "dockerfileLines": [
+                       
+                        "FROM node:14.17.0-alpine",
                         "ARG DATABASE_URL=DATABASE_URL",
                         "ENV DATABASE_URL=${DATABASE_URL}",
-                        "FROM node:14.17.0-alpine",
                         "RUN mkdir -p /usr/src/app",
                         "WORKDIR /usr/src/app",
                         "COPY ./package.json /usr/src/app/",
