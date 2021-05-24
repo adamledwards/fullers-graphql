@@ -1,10 +1,5 @@
  {
   "schemaVersion": 2,
-  "templateId": "node/14.17.0"
- }
-
-  {
-  "schemaVersion": 2,
   "dockerfileLines": [
                         "FROM node:14.17.0-alpine",
                         "RUN mkdir -p /usr/src/app",
