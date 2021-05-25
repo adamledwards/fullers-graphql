@@ -1,4 +1,3 @@
-import fs from 'fs'
 import Knex from "knex";
 
 import {
@@ -149,15 +148,9 @@ const knex = Knex(
     client: 'postgresql',
     connection: {
       connectionString: config.databaseUrl,
-      ...(
-        process.env.PLATFORM === 'PAAS' ? 
-        {
-          rejectUnauthorized: true, 
-          ca: fs.readFileSync("ca-certificate.crt").toString()
-      } : {
-        rejectUnauthorized: true, 
+      ssl: {
+        rejectUnauthorized: false
       }
-      ),
     }
   }
   );
