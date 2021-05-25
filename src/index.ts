@@ -1,5 +1,5 @@
 import Knex from "knex";
-
+import * as knexConfig from "./knexfile"
 import {
   ApolloServer,
   gql,
@@ -144,15 +144,7 @@ type PropertyImageInput = {
 };
 
 const knex = Knex(
-  {
-    client: 'postgresql',
-    connection: {
-      connectionString: config.databaseUrl,
-      ssl: {
-        rejectUnauthorized: false
-      }
-    }
-  }
+  knexConfig
   );
 
 const typeDefs = gql`
