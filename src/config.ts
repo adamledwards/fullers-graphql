@@ -13,7 +13,7 @@ const {
   DATABASE_URL,
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
-  S3_REGION,
+  S3_ENDPOINT,
   S3_BUCKET,
 } = process.env;
 
@@ -30,7 +30,7 @@ type Config = {
   s3: {
     accessKeyId: string;
     secretAccessKey: string;
-    region: string;
+    endpoint: string;
   };
   s3Bucket: string;
 };
@@ -47,7 +47,7 @@ const schema = Joi.object<Config>({
   s3: Joi.object({
     accessKeyId: Joi.string().required(),
     secretAccessKey: Joi.string().required(),
-    region: Joi.string().required(),
+    endpoint: Joi.string().required(),
   }),
   s3Bucket: Joi.string().required(),
 });
@@ -65,7 +65,7 @@ const { error, value } = schema.validate({
   s3: {
     accessKeyId: S3_ACCESS_KEY_ID,
     secretAccessKey: S3_SECRET_ACCESS_KEY,
-    region: S3_REGION,
+    endpoint: S3_ENDPOINT,
   },
   s3Bucket: S3_BUCKET,
 });

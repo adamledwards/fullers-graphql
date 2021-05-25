@@ -2,7 +2,7 @@ import AWS from "aws-sdk";
 import * as path from "path";
 import config from "../../config";
 
-const s3 = new AWS.S3(config.s3);
+const s3 = new AWS.S3({...config.s3, endpoint: new AWS.Endpoint(config.s3.endpoint) as unknown as string} );
 
 export async function getSignedUrl(unSignedUrl: string) {
   try {
