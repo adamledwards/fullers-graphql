@@ -110,8 +110,9 @@ async function addPropertyImage(
           ContentType: file.mimetype,
         },
         async (err, response) => {
+          
           if (err) {
-            reject(err);
+            throw err;
           }
 
           const image = await knex<PropertyImage>("property_image")

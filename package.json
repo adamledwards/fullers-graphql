@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
+    "@types/graphql-upload": "^8.0.4",
     "apollo-server": "^2.24.1",
     "auth0": "^2.33.0",
     "aws-sdk": "^2.743.0",
