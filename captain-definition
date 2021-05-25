@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "dockerfileLines": [
                        
-                        "FROM node:14.17.0-alpine",
+                        "FROM node:12.22.1-alpine",
                         "ARG DATABASE_URL=DATABASE_URL",
                         "ENV DATABASE_URL=${DATABASE_URL}",
                         "RUN mkdir -p /usr/src/app",
