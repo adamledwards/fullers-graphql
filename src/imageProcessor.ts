@@ -22,6 +22,7 @@ export type JobArgs = {
 };
 
 export default async function (job: Job<JobArgs>) {
+  console.log(job)
   await knex<PropertyImage>("property_image")
     .returning("id")
     .update({
