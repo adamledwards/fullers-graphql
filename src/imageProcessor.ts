@@ -10,8 +10,9 @@ import { PassThrough } from "stream";
 import * as path from "path";
 
 import mime from "mime/lite";
+const knexConfig = require('./knexfile')
 
-const knex = Knex(config.databaseUrl);
+const knex = Knex(knexConfig);
 
 export type JobArgs = {
   propertyImage: {
