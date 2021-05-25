@@ -1,5 +1,5 @@
 import Knex from "knex";
-import * as knexConfig from "./knexfile"
+import knexConfig from "./knexfile"
 import {
   ApolloServer,
   gql,
@@ -33,6 +33,7 @@ import Auth0 from "auth0";
 import config from "./config";
 import { extractOutCode, stripHouseNumber } from "./utils";
 const { PerformanceObserver, performance } = require("perf_hooks");
+
 
 const obs = new PerformanceObserver((items: any) => {
   console.log(items.getEntries()[0].duration);
